@@ -53,6 +53,16 @@ impl Direction {
             Left => 3,
         }
     }
+    
+    pub fn from_char(c: char) -> Option<Self> {
+        match c {
+            '^' => Some(Up),
+            '>' => Some(Right),
+            'v' => Some(Down),
+            '<' => Some(Left),
+            _ => None,
+        }
+    }
 }
 
 impl From<Direction> for Point2D {
