@@ -41,6 +41,27 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
+    let directions = input
+        .chars()
+        .map(|c| Direction::from_char(c).with_context(|| format!("Invalid direction: {c}")));
 
+    let mut santa = Point2D::ZERO;
+    let mut robo_santa = Point2D::ZERO;
+    let mut visited = HashSet::new();
+    visited.insert(santa);
+
+    for (i, dir) in directions.enumerate() {
+        let dir = dir?;
+        if i % 2 == 0 {
+            santa += dir.as_point();
+            visited.insert(santa);
+        } else {
+            robo_santa += dir.as_point();
+            visited.insert(robo_santa);
+        }
+    }
+
+    let result = visited.len();
+    display_result(&result);
     Ok(())
 }
