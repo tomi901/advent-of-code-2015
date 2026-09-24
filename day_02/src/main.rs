@@ -1,5 +1,4 @@
 use std::path::Path;
-use std::str::FromStr;
 use anyhow::{self, Context};
 use day_02::GiftBox;
 use xmas::display_result;
@@ -18,12 +17,12 @@ fn main() -> anyhow::Result<()> {
 
 fn part_1(input: &str) -> anyhow::Result<()> {
     println!("Part 1:");
-
-    let mut result = 0;
-    for line in input.lines() {
-        let gift = line.parse::<GiftBox>()?;
-        result += gift.needed_wrap_surface_area();
-    }
+    let result = input
+        .lines()
+        .try_fold(0u64, |acc, line| -> anyhow::Result<_> {
+            let gift = line.parse::<GiftBox>()?;
+            Ok(acc + gift.needed_wrap_surface_area())
+        })?;
 
     display_result(&result);
     Ok(())
@@ -31,12 +30,12 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
-    let mut result = 0;
-    for line in input.lines() {
-        let gift =  GiftBox::from_str(line)?;
-        result += gift.needed_ribbon_length();
-    }
+    let result = input
+        .lines()
+        .try_fold(0u64, |acc, line| -> anyhow::Result<_> {
+            let gift = line.parse::<GiftBox>()?;
+            Ok(acc + gift.needed_ribbon_length())
+        })?;
 
     display_result(&result);
     Ok(())
@@ -44,6 +43,7 @@ fn part_2(input: &str) -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
     use super::*;
 
     #[test]

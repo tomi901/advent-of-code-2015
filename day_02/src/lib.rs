@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 
 pub struct GiftBox {
     length: u64,
@@ -11,15 +11,12 @@ impl FromStr for GiftBox {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut split = s.split('x');
-
-        let length = split.next().context("length missing")?.parse()?;
-        let width = split.next().context("width missing")?.parse()?;
-        let height = split.next().context("height missing")?.parse()?;
-
-        if split.next().is_some() {
-            return Err(anyhow!("too many dimensions, 3 expected"));
-        }
+        let [length, width, height]: [u64; 3] = s
+            .split('x')
+            .map(|d| d.parse())
+            .collect::<Result<Vec<_>, _>>()?
+            .try_into()
+            .map_err(|v: Vec<_>| anyhow!("Expected 3 dimensions, found {}", v.len()))?;
 
         Ok(Self {
             length,
