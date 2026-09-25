@@ -2,34 +2,53 @@ use std::collections::HashSet;
 use std::str::FromStr;
 use anyhow::{anyhow, Context};
 use xmas::point2d::Point2D;
-use crate::Instruction::*;
+use crate::InstructionKind::*;
 
 const TOGGLE_INS: &'static str = "toggle ";
 const TURN_ON_INS: &'static str = "turn on ";
 const TURN_OFF_INS: &'static str = "turn off ";
 
-enum Instruction {
+pub enum InstructionKind {
     Toggle,
     TurnOn,
     TurnOff,
 }
 
-#[derive(Debug, Default)]
-pub struct Lights {
-    lit: HashSet<Point2D>,
+pub struct Instruction {
+    pub kind: InstructionKind,
+    pub point_a: Point2D,
+    pub point_b: Point2D,
 }
 
-impl Lights {
-    pub fn new() -> Self {
-        Self::default()
-    }
-    
-    pub fn lit_count(&self) -> usize {
-        self.lit.len()
+impl Instruction {
+    pub fn new(kind: InstructionKind, point_a: Point2D, point_b: Point2D) -> Self {
+        Self {
+            kind,
+            point_a,
+            point_b,
+        }
     }
 
-    pub fn apply_instruction(&mut self, s: &str) -> anyhow::Result<()> {
-        let (instruction, rest) = if s.starts_with(TOGGLE_INS) {
+    pub fn range_count(&self) -> isize {
+        let width = self.point_a.0.abs_diff(self.point_b.0) + 1;
+        let height = self.point_a.1.abs_diff(self.point_b.1) + 1;
+        (width * height) as isize
+    }
+
+    pub fn brightness_delta(&self) -> isize {
+        match self.kind {
+            Toggle => self.range_count() * 2,
+            TurnOn => self.range_count(),
+            TurnOff => -self.range_count(),
+        }
+    }
+}
+
+impl FromStr for Instruction {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (kind, rest) = if s.starts_with(TOGGLE_INS) {
             (Toggle, s.trim_start_matches(TOGGLE_INS))
         } else if s.starts_with(TURN_ON_INS) {
             (TurnOn, s.trim_start_matches(TURN_ON_INS))
@@ -46,10 +65,35 @@ impl Lights {
         let point_a = Point2D::from_str(point_a).context("Point A parsing")?;
         let point_b = Point2D::from_str(point_b).context("Point B parsing")?;
 
-        match instruction {
-            Toggle => self.toggle(point_a, point_b),
-            TurnOn => self.turn_on(point_a, point_b),
-            TurnOff => self.turn_off(point_a, point_b),
+        Ok(Self {
+            kind,
+            point_a,
+            point_b,
+        })
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct Lights {
+    lit: HashSet<Point2D>,
+}
+
+impl Lights {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn lit_count(&self) -> usize {
+        self.lit.len()
+    }
+
+    pub fn apply_instruction(&mut self, s: &str) -> anyhow::Result<()> {
+        let ins = Instruction::from_str(s)?;
+
+        match ins.kind {
+            Toggle => self.toggle(ins.point_a, ins.point_b),
+            TurnOn => self.turn_on(ins.point_a, ins.point_b),
+            TurnOff => self.turn_off(ins.point_a, ins.point_b),
         }
         Ok(())
     }
@@ -74,5 +118,22 @@ impl Lights {
                 self.lit.insert(p);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn part_2_case_1() {
+        let instruction = Instruction::new(TurnOn, Point2D(0, 0), Point2D(0, 0));
+        assert_eq!(instruction.brightness_delta(), 1);
+    }
+
+    #[test]
+    pub fn part_2_case_2() {
+        let instruction = Instruction::new(Toggle, Point2D(0, 0), Point2D(999, 999));
+        assert_eq!(instruction.brightness_delta(), 2_000_000);
     }
 }

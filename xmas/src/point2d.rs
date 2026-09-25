@@ -1,5 +1,4 @@
 use std::{fmt::Display, num::ParseIntError, ops, str::FromStr};
-use std::ops::RangeInclusive;
 use crate::direction::Direction;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Hash)]
