@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use anyhow::{anyhow, Context};
 use xmas::point2d::Point2D;
@@ -117,6 +117,40 @@ impl Lights {
             } else {
                 self.lit.insert(p);
             }
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct LightsV2 {
+    brightness: HashMap<Point2D, u32>,
+}
+
+impl LightsV2 {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    
+    pub fn brightness(&self) -> u32 {
+        self.brightness.values().sum()
+    }
+    
+    pub fn apply_instruction(&mut self, instruction: Instruction) {
+        let delta: i32 = match instruction.kind {
+            Toggle => 2,
+            TurnOn => 1,
+            TurnOff => -1,
+        };
+
+        for p in instruction.point_a.iter_to_inclusive(instruction.point_b) {
+            let state = self.brightness.get(&p).cloned().unwrap_or(0);
+            if delta < 0 && (-delta) as u32 >= state {
+                self.brightness.remove(&p);
+                continue;
+            }
+            
+            let new_state = (state as i32) + delta;
+            self.brightness.insert(p, new_state as u32);
         }
     }
 }

@@ -1,7 +1,6 @@
 use std::path::Path;
-use std::str::FromStr;
 use anyhow::{self, Context};
-use day_06::{Instruction, Lights, LightsV2};
+use day_07::{Circuit, CircuitCache};
 use xmas::display_result;
 
 fn main() -> anyhow::Result<()> {
@@ -18,23 +17,15 @@ fn main() -> anyhow::Result<()> {
 
 fn part_1(input: &str) -> anyhow::Result<()> {
     println!("Part 1:");
-    let mut lights = Lights::new();
-    for line in input.lines() {
-        lights.apply_instruction(line)?;
-    }
-    let result = lights.lit_count();
+    let circuit = input.parse::<Circuit>()?;
+    let mut cache = CircuitCache::default();
+    let result = circuit.evaluate("a", &mut cache)?;
     display_result(&result);
     Ok(())
 }
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-    let mut lights = LightsV2::new();
-    for line in input.lines() {
-        let instruction = Instruction::from_str(line)?;
-        lights.apply_instruction(instruction);
-    }
-    let result = lights.brightness();
-    display_result(&result);
+
     Ok(())
 }
