@@ -11,6 +11,12 @@ pub struct Circuit {
 }
 
 impl Circuit {
+    pub fn set(&mut self, identifier: String, expression: Expression) {
+        self.statements.insert(identifier, expression);
+    }
+}
+
+impl Circuit {
     pub fn evaluate(&self, identifier: &str, cache: &mut CircuitCache) -> anyhow::Result<u16> {
         if let Some(&cached) = cache.get(identifier) {
             return Ok(cached);
@@ -67,6 +73,12 @@ pub enum Expression {
     LShift(Value, Value),
     RShift(Value, Value),
     Not(Value),
+}
+
+impl Expression {
+    pub fn constant(value: u16) -> Self {
+        Val(Value::Constant(value))
+    }
 }
 
 impl FromStr for Expression {

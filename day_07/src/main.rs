@@ -1,6 +1,6 @@
 use std::path::Path;
 use anyhow::{self, Context};
-use day_07::{Circuit, CircuitCache};
+use day_07::{Circuit, CircuitCache, Expression};
 use xmas::display_result;
 
 fn main() -> anyhow::Result<()> {
@@ -26,6 +26,14 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let mut circuit = input.parse::<Circuit>()?;
+    let mut cache = CircuitCache::default();
+    let previous_result = circuit.evaluate("a", &mut cache)?;
+    
+    cache.clear();
+    circuit.set("b".to_string(), Expression::constant(previous_result));
+    let result = circuit.evaluate("a", &mut cache)?;
+    
+    display_result(&result);
     Ok(())
 }
