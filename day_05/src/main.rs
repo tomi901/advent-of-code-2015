@@ -1,6 +1,6 @@
 use std::path::Path;
 use anyhow::{self, Context};
-use day_05::is_nice_string;
+use day_05::{is_nice_string, is_nice_string_updated};
 use xmas::display_result;
 
 fn main() -> anyhow::Result<()> {
@@ -17,7 +17,6 @@ fn main() -> anyhow::Result<()> {
 
 fn part_1(input: &str) -> anyhow::Result<()> {
     println!("Part 1:");
-
     let result = input
         .lines()
         .filter(|&l| is_nice_string(l))
@@ -28,6 +27,10 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let result = input
+        .lines()
+        .filter(|&l| is_nice_string_updated(l))
+        .count();
+    display_result(&result);
     Ok(())
 }
