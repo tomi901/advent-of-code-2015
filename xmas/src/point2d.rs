@@ -1,4 +1,5 @@
 use std::{fmt::Display, num::ParseIntError, ops, str::FromStr};
+use std::ops::RangeInclusive;
 use crate::direction::Direction;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Hash)]
@@ -46,6 +47,11 @@ impl Point2D {
 
     pub fn map(&self, f: impl Fn(isize) -> isize) -> Self {
         Self(f(self.0), f(self.1))
+    }
+    
+    pub fn iter_to_inclusive(&self, to: Self) -> impl Iterator<Item = Self> + '_ {
+        (self.1..=to.1)
+            .flat_map(move |y| (self.0..=to.0).map(move |x| Self(x, y)))
     }
 }
 
