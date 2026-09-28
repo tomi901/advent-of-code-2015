@@ -28,6 +28,11 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let mut digits = input.trim().to_string();
+    for _ in 0..50 {
+        digits = look_and_say(&digits)?;
+    }
+    let result = digits.len();
+    display_result(&result);
     Ok(())
 }
