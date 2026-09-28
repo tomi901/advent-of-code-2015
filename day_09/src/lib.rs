@@ -34,7 +34,7 @@ impl PathMap {
         if visited.contains(from) {
             return None;
         }
-        
+
         let path_len = visited.len() + 1;
         if path_len == self.nodes.len() {
             return Some(0);
@@ -60,6 +60,46 @@ impl PathMap {
         visited.remove(from);
 
         lowest
+    }
+
+    pub fn get_longest_path(&self) -> Option<u64> {
+        let mut visited = HashSet::new();
+        self.nodes
+            .keys()
+            .flat_map(move |k| self.get_longest_path_from(k.as_str(), &mut visited))
+            .max()
+    }
+
+    fn get_longest_path_from<'a>(
+        &'a self,
+        from: &'a str,
+        visited: &mut HashSet<&'a str>,
+    ) -> Option<u64> {
+        if visited.contains(from) {
+            return None;
+        }
+
+        let path_len = visited.len() + 1;
+        if path_len == self.nodes.len() {
+            return Some(0);
+        } else if !self.nodes.contains_key(from) {
+            return None; // Dead end
+        }
+
+        visited.insert(from);
+        let mut highest = None;
+        for (connection, &conn_cost) in self.nodes[from].iter() {
+            let Some(additional_cost) = self.get_longest_path_from(connection.as_str(), &mut *visited) else {
+                continue;
+            };
+            let total_conn_cost = conn_cost + additional_cost;
+            if highest.is_none_or(|l| total_conn_cost > l)  {
+                highest = Some(total_conn_cost);
+            }
+        }
+        visited.remove(from);
+
+        highest
     }
 }
 

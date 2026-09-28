@@ -28,6 +28,8 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let map = PathMap::from_str(input)?;
+    let result = map.get_longest_path().context("No path found")?;
+    display_result(&result);
     Ok(())
 }
