@@ -1,6 +1,6 @@
 use std::path::Path;
 use anyhow::{self, Context};
-use day_12::get_nums_sum;
+use day_12::{get_json_sum, get_nums_sum};
 use xmas::display_result;
 
 fn main() -> anyhow::Result<()> {
@@ -24,6 +24,7 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let result = get_json_sum(input)?;
+    display_result(&result);
     Ok(())
 }
