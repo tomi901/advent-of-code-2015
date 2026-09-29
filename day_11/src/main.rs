@@ -24,6 +24,8 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let expired = next_valid_password(input.trim());
+    let result = next_valid_password(expired.trim());
+    display_result(&result);
     Ok(())
 }
