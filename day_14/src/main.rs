@@ -1,3 +1,4 @@
+use std::cmp::{Ordering, Reverse};
 use std::path::Path;
 use std::str::FromStr;
 use anyhow::{self, Context};
@@ -18,16 +19,26 @@ fn main() -> anyhow::Result<()> {
 
 fn part_1(input: &str) -> anyhow::Result<()> {
     println!("Part 1:");
-    let reindeers: Vec<_> = input
+    let mut leaderboard: Vec<(Reindeer, i64)> = input
         .lines()
         .map(Reindeer::from_str)
+        .map(|r| r.map(|r| {
+            let distance = r.distance_after(2503);
+            (r, distance)
+        }))
         .collect::<Result<_, _>>()?;
-    let (winner, result) = reindeers
+    leaderboard.sort_by_key(|l| Reverse(l.1));
+
+    println!("Leaderboard:");
+    for (pos, r) in leaderboard.iter().enumerate() {
+        println!(" {}. {} with a distance of {}!", pos + 1, r.0.name(), r.1);
+    }
+
+    let result = leaderboard
         .iter()
-        .map(|r| (r, r.distance_after(2503)))
-        .max_by_key(|x| x.1)
+        .map(|r| r.1)
+        .max()
         .context("None found")?;
-    println!("Winner: {}!", winner.name());
     display_result(&result);
     Ok(())
 }
@@ -55,8 +66,19 @@ fn part_2(input: &str) -> anyhow::Result<()> {
             score[i] += 1;
         }
     }
+    let result = *score.iter().max().unwrap();
 
-    let result = score.iter().max().unwrap();
+    let mut leaderboard = reindeers
+        .iter()
+        .zip(score)
+        .collect::<Vec<_>>();
+    leaderboard.sort_by_key(|l| Reverse(l.1));
+
+    println!("Leaderboard:");
+    for (pos, r) in leaderboard.iter().enumerate() {
+        println!(" {}. {} with a score of {}!", pos + 1, r.0.name(), r.1);
+    }
+
     display_result(&result);
     Ok(())
 }
