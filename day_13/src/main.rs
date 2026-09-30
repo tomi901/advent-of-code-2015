@@ -1,3 +1,4 @@
+use std::ops::Add;
 use std::path::Path;
 use std::str::FromStr;
 use anyhow::{self, Context};
@@ -33,6 +34,15 @@ fn part_1(input: &str) -> anyhow::Result<()> {
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-
+    let mut guest_list = GuestList::from_str(input)?;
+    guest_list.add_guest("You".to_string());
+    let (result, result_list) = find_most_optimal_happiness(&guest_list)
+        .context("No result found")?;
+    let arranged_list = result_list
+        .iter()
+        .map(|&i| guest_list.get_name(i).to_string())
+        .collect::<Vec<_>>();
+    dbg!(arranged_list);
+    display_result(&result);
     Ok(())
 }

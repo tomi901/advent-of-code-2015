@@ -11,6 +11,10 @@ pub struct GuestList {
 }
 
 impl GuestList {
+    pub fn add_guest(&mut self, name: String) {
+        self.guests.push(name)
+    }
+    
     pub fn get_name(&self, index: usize) -> &str {
         &self.guests[index]
     }
@@ -44,7 +48,7 @@ impl GuestList {
     }
     
     fn get_happiness_next_to(&self, from: usize, to: usize) -> Happiness {
-        self.happiness[&(from, to)]
+        self.happiness.get(&(from, to)).cloned().unwrap_or(0)
     }
 
     fn get_happiness_for_guest(&self, index: usize) -> (Happiness, Happiness) {
