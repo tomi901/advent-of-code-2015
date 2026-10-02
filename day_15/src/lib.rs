@@ -32,16 +32,29 @@ impl FromStr for Ingredient {
     }
 }
 
-pub fn calculate_best_recipe(ingredients: &[Ingredient], amount: i64) -> i64 {
+pub fn calculate_best_recipe_for_calories(
+    ingredients: &[Ingredient],
+    amount: i64,
+    calories: i64,
+) -> Option<i64> {
     let mut amounts = Vec::new();
-    calculate_best_recipe_internal(ingredients, &mut amounts, amount)
+    calculate_best_recipe_internal(ingredients, &mut amounts, amount, &|r| {
+        let found_calories = get_property_score(r, |i| i.calories);
+        found_calories == calories
+    })
+}
+
+pub fn calculate_best_recipe(ingredients: &[Ingredient], amount: i64) -> Option<i64> {
+    let mut amounts = Vec::new();
+    calculate_best_recipe_internal(ingredients, &mut amounts, amount, &|_| true)
 }
 
 fn calculate_best_recipe_internal(
     ingredients: &[Ingredient],
     amounts: &mut Vec<i64>,
     remaining: i64,
-) -> i64 {
+    recipe_filter: &impl Fn(&[IngredientAmount]) -> bool,
+) -> Option<i64> {
     if amounts.len() + 1 == ingredients.len() {
         amounts.push(remaining);
         let recipe = amounts
@@ -50,11 +63,15 @@ fn calculate_best_recipe_internal(
             .zip(ingredients.iter().cloned())
             .collect::<Vec<_>>();
         amounts.pop();
+        
+        if !recipe_filter(&recipe[..]) {
+            return None;
+        }
 
-        return get_recipe_score(&recipe[..]);
+        return Some(get_recipe_score(&recipe[..]));
     }
 
-    let mut best_found = 0;
+    let mut best_found = None;
     for n in 0..=remaining {
         amounts.push(n);
         let remaining_for_rest = remaining - n;
@@ -62,6 +79,7 @@ fn calculate_best_recipe_internal(
             ingredients,
             amounts,
             remaining_for_rest,
+            recipe_filter,
         );
         best_found = cmp::max(best_found, result);
         amounts.pop();
