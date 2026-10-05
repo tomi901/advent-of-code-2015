@@ -11,11 +11,27 @@ impl Sue {
     pub fn number(&self) -> u32 {
         self.number
     }
-    
+
     pub fn is_suspect(&self, hints: &HashMap<String, u32>) -> bool {
         self.properties
             .iter()
-            .all(|(prop, value)| hints.get(prop).is_some_and(|x| value == x))
+            .all(|(prop, value)| hints.get(prop).is_some_and(|hint| value == hint))
+    }
+
+    pub fn is_suspect_v2(&self, hints: &HashMap<String, u32>) -> bool {
+        self.properties
+            .iter()
+            .all(|(prop, &value)| hints
+                .get(prop)
+                .is_some_and(|&hint| is_v2_match(prop, value, hint)))
+    }
+}
+
+fn is_v2_match(property: &str, value: u32, hint: u32) -> bool {
+    match property {
+        "cats" | "trees" => value > hint,
+        "pomeranians" | "goldfish" => value < hint,
+        _ => value == hint
     }
 }
 
