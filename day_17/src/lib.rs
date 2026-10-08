@@ -1,20 +1,20 @@
 use std::cmp::Reverse;
 use std::collections::HashSet;
 
-pub fn calculate_combinations(capacity: u32, containers: &[u32]) -> usize {
+pub fn count_combinations(liters: u32, containers: &[u32]) -> usize {
     let mut used_indices = HashSet::new();
     let mut sorted = containers.iter().cloned().collect::<Vec<_>>();
     sorted.sort_by_key(|&x| Reverse(x));
-    calculate_combinations_internal(capacity, &sorted, &mut used_indices, None, None).0
+    count_combinations_internal(liters, &sorted, &mut used_indices, None, None).0
 }
 
-pub fn calculate_combinations_minimum_containers(capacity: u32, containers: &[u32]) -> usize {
+pub fn count_minimum_containers_combinations(liters: u32, containers: &[u32]) -> usize {
     let mut used_indices = HashSet::new();
     let mut sorted = containers.iter().cloned().collect::<Vec<_>>();
     sorted.sort_by_key(|&x| Reverse(x));
 
-    let (_, Some(minimum_amount)) = calculate_combinations_internal(
-        capacity,
+    let (_, Some(minimum_amount)) = count_combinations_internal(
+        liters,
         &sorted,
         &mut used_indices,
         None,
@@ -24,8 +24,8 @@ pub fn calculate_combinations_minimum_containers(capacity: u32, containers: &[u3
     };
 
     // dbg!(minimum_amount);
-    calculate_combinations_internal(
-        capacity,
+    count_combinations_internal(
+        liters,
         &sorted,
         &mut used_indices,
         None,
@@ -34,14 +34,15 @@ pub fn calculate_combinations_minimum_containers(capacity: u32, containers: &[u3
 }
 
 /// (combinations, minimum amount of containers combination)
-fn calculate_combinations_internal(
-    capacity: u32,
+fn count_combinations_internal(
+    liters: u32,
     containers_sorted: &[u32],
+    // Not really necessary, since we sort the containers to avoid duplicates
     used: &mut HashSet<usize>,
     last_index: Option<usize>,
     use_limit: Option<usize>,
 ) -> (usize, Option<usize>) {
-    if capacity == 0 {
+    if liters == 0 {
         return (1, Some(used.len()));
     }
 
@@ -55,13 +56,13 @@ fn calculate_combinations_internal(
     let mut sum = 0;
     let mut minimum_size_combination = None;
     for (i, &size) in containers_sorted.iter().enumerate().skip(skip) {
-        if size > capacity || used.contains(&i) {
+        if size > liters || used.contains(&i) {
             continue;
         }
 
         used.insert(i);
-        let (combinations_found, minimum_found) = calculate_combinations_internal(
-            capacity - size,
+        let (combinations_found, minimum_found) = count_combinations_internal(
+            liters - size,
             containers_sorted,
             used,
             Some(i),
@@ -91,7 +92,7 @@ mod tests {
     #[test]
     pub fn part_1_test_case() {
         assert_eq!(
-            calculate_combinations(CAPACITY, CONTAINERS),
+            count_combinations(CAPACITY, CONTAINERS),
             4,
         );
     }
@@ -99,7 +100,7 @@ mod tests {
     #[test]
     pub fn part_2_test_case() {
         assert_eq!(
-            calculate_combinations_minimum_containers(CAPACITY, CONTAINERS),
+            count_minimum_containers_combinations(CAPACITY, CONTAINERS),
             3,
         );
     }

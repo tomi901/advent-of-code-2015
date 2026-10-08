@@ -1,8 +1,9 @@
 use std::path::Path;
 use std::str::FromStr;
 use anyhow::{self, Context};
-use day_17::{count_combinations, count_minimum_containers_combinations};
+use day_18::{alive_count, simulate_step};
 use xmas::display_result;
+use xmas::map2d::ByteMap;
 
 fn main() -> anyhow::Result<()> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -18,22 +19,18 @@ fn main() -> anyhow::Result<()> {
 
 fn part_1(input: &str) -> anyhow::Result<()> {
     println!("Part 1:");
-    let containers = input
-        .lines()
-        .map(u32::from_str)
-        .collect::<Result<Vec<_>, _>>()?;
-    let result = count_combinations(150, &containers);
+    let mut state = ByteMap::from_str(input)?;
+    for _ in 0..100 {
+        state = simulate_step(&state);
+    }
+
+    let result = alive_count(state);
     display_result(&result);
     Ok(())
 }
 
 fn part_2(input: &str) -> anyhow::Result<()> {
     println!("Part 2:");
-    let containers = input
-        .lines()
-        .map(u32::from_str)
-        .collect::<Result<Vec<_>, _>>()?;
-    let result = count_minimum_containers_combinations(150, &containers);
-    display_result(&result);
+
     Ok(())
 }
